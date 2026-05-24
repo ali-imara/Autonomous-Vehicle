@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Page-1" id="G8ga7XG0CMfAnGi47vBp">
-    <mxGraphModel dx="1643" dy="999" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1417" dy="861" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -59,10 +59,10 @@
             <mxPoint x="324.94000000000005" y="386.99" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="HUWMNhpux-bNXLyZeAas-27" parent="HUWMNhpux-bNXLyZeAas-2" style="shape=note;size=15;spacingLeft=5;align=left;whiteSpace=wrap;fontSize=10;" value="Condition: {boolean expression}&#xa;extension point: p1, p2" vertex="1">
-          <mxGeometry height="40" width="170" x="330" y="400" as="geometry" />
+        <mxCell id="HUWMNhpux-bNXLyZeAas-27" parent="HUWMNhpux-bNXLyZeAas-2" style="shape=note;size=15;spacingLeft=5;align=left;whiteSpace=wrap;fontSize=10;" value="Condition: {obstacle distance below safe threshold}&#xa;Extension point: during obstacle detection" vertex="1">
+          <mxGeometry height="40" width="240" x="280" y="400" as="geometry" />
         </mxCell>
-        <mxCell id="HUWMNhpux-bNXLyZeAas-29" edge="1" parent="HUWMNhpux-bNXLyZeAas-2" style="edgeStyle=none;html=1;endArrow=none;rounded=0;labelBackgroundColor=none;dashed=1;entryX=0.657;entryY=-0.05;entryDx=0;entryDy=0;entryPerimeter=0;" target="HUWMNhpux-bNXLyZeAas-27" value="">
+        <mxCell id="HUWMNhpux-bNXLyZeAas-29" edge="1" parent="HUWMNhpux-bNXLyZeAas-2" style="edgeStyle=none;html=1;endArrow=none;rounded=0;labelBackgroundColor=none;dashed=1;entryX=0.542;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="HUWMNhpux-bNXLyZeAas-27" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
             <mxPoint x="440" y="370" as="sourcePoint" />

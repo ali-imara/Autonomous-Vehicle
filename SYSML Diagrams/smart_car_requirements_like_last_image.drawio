@@ -1,0 +1,213 @@
+<mxfile host="Electron">
+  <diagram name="Smart Car Requirements" id="0">
+    <mxGraphModel dx="3093" dy="1784" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-001&#xa;The smart car shall follow a black line automatically.&#xa;&#xa;Id = “REQ-001”&#xa;Priority = High" vertex="1">
+          <mxGeometry height="150" width="280" x="820" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-002&#xa;The system shall detect the line using IR sensors.&#xa;&#xa;Id = “REQ-002”&#xa;Priority = High" vertex="1">
+          <mxGeometry height="150" width="280" x="420" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-003&#xa;The system shall detect obstacles using ultrasonic sensors.&#xa;&#xa;Id = “REQ-003”&#xa;Priority = High" vertex="1">
+          <mxGeometry height="150" width="300" x="830" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-004&#xa;The system shall move the car using two motors.&#xa;&#xa;Id = “REQ-004”&#xa;Priority = High" vertex="1">
+          <mxGeometry height="150" width="280" x="1210" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="r21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-002-1&#xa;The system shall use left IR sensor for line tracking.&#xa;&#xa;Id = “REQ-002-1”&#xa;Priority = Medium" vertex="1">
+          <mxGeometry height="150" width="220" x="320" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="r22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-002-2&#xa;The system shall use right IR sensor for line tracking.&#xa;&#xa;Id = “REQ-002-2”&#xa;Priority = Medium" vertex="1">
+          <mxGeometry height="150" width="220" x="570" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="r31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-003-1&#xa;The system shall use front ultrasonic sensor to detect obstacles.&#xa;&#xa;Id = “REQ-003-1”&#xa;Priority = Medium" vertex="1">
+          <mxGeometry height="150" width="240" x="830" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="r32" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-003-2&#xa;The system shall use second ultrasonic sensor to detect obstacles.&#xa;&#xa;Id = “REQ-003-2”&#xa;Priority = Medium" vertex="1">
+          <mxGeometry height="150" width="240" x="1100" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="r41" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&#xa;REQ-004-1&#xa;The motor control unit shall control both motors.&#xa;&#xa;Id = “REQ-004-1”&#xa;Priority = High" vertex="1">
+          <mxGeometry height="150" width="280" x="1400" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#6b3f3f;fontSize=12;" value="«requirement»&lt;br&gt;REQ-005&lt;br&gt;&lt;pre class=&quot;overflow-visible! px-0!&quot; data-start=&quot;1134&quot; data-end=&quot;1212&quot;&gt;&lt;div class=&quot;relative w-full mt-4 mb-1&quot;&gt;&lt;div class=&quot;&quot;&gt;&lt;div class=&quot;relative&quot;&gt;&lt;div class=&quot;h-full min-h-0 min-w-0&quot;&gt;&lt;div class=&quot;h-full min-h-0 min-w-0&quot;&gt;&lt;div class=&quot;border border-token-border-light border-radius-3xl corner-superellipse/1.1 rounded-3xl&quot;&gt;&lt;div class=&quot;h-full w-full border-radius-3xl bg-token-bg-elevated-secondary corner-superellipse/1.1 overflow-clip rounded-3xl lxnfua_clipPathFallback&quot;&gt;&lt;div class=&quot;relative&quot;&gt;&lt;div class=&quot;pe-11 pt-3&quot;&gt;&lt;div class=&quot;relative z-0 flex max-w-full&quot;&gt;&lt;div id=&quot;code-block-viewer&quot; dir=&quot;ltr&quot; class=&quot;q9tKkq_viewer cm-editor z-10 light:cm-light dark:cm-light flex h-full w-full flex-col items-stretch ͼs ͼ16&quot;&gt;&lt;div class=&quot;cm-scroller&quot;&gt;&lt;pre class=&quot;cm-content q9tKkq_readonly m-0&quot;&gt;&lt;code&gt;&lt;font face=&quot;Helvetica&quot;&gt;The car shall detect and avoid obstacles&lt;br&gt; autonomously.&lt;/font&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;p data-start=&quot;1214&quot; data-end=&quot;1300&quot;&gt;&lt;/p&gt;&lt;br&gt;Id = “REQ-005”&lt;br&gt;Priority = High" vertex="1">
+          <mxGeometry height="130" width="300" x="1210" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Left IR Sensor" vertex="1">
+          <mxGeometry height="65" width="160" x="350" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Right IR Sensor" vertex="1">
+          <mxGeometry height="65" width="160" x="610" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&lt;br&gt;First Ultrasonic&lt;br&gt;Sensor" vertex="1">
+          <mxGeometry height="70" width="180" x="860" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Second Ultrasonic&#xa;Sensor" vertex="1">
+          <mxGeometry height="70" width="180" x="1130" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&lt;br&gt;Arduino&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="180" x="860" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Motor Control&#xa;Unit" vertex="1">
+          <mxGeometry height="70" width="180" x="1480" y="1127.5" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Left Motor" vertex="1">
+          <mxGeometry height="60" width="150" x="1670" y="1230" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Right Motor" vertex="1">
+          <mxGeometry height="60" width="150" x="1670" y="1310" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6b3f3f;fontSize=12;" value="«block»&#xa;Battery&#xa;(Power Supply)" vertex="1">
+          <mxGeometry height="70" width="210" x="845" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="r1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;exitX=-0.012;exitY=0.472;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="r2" value="«derive»">
+          <mxGeometry relative="1" x="0.4388" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="560" y="241" />
+            </Array>
+            <mxPoint x="940.0000000000005" y="320" as="sourcePoint" />
+            <mxPoint x="530" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="r1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r3" value="«derive»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="960" y="470" />
+              <mxPoint x="960" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="r1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r4" value="«derive»">
+          <mxGeometry relative="1" x="0.7576" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r21" value="«derive»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r22" value="«derive»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="r3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r31" value="«derive»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="760" />
+              <mxPoint x="870" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="r3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r32" value="«derive»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="760" />
+              <mxPoint x="1220" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="r3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r5" value="«derive»">
+          <mxGeometry relative="1" x="-0.0945" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1360" y="575" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="r4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="r41" value="«derive»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="800" />
+              <mxPoint x="1560" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="r21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="b1" value="«satisfy»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="r22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="b2" value="«satisfy»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="690" y="1020" />
+              <mxPoint x="690" y="1020" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="r31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="b3" value="«satisfy»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="r32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="b4" value="«satisfy»">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="r41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 4;" target="b6" value="«satisfy»">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="1090" />
+              <mxPoint x="1560" y="1090" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="b1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="1340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="b2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="690" y="1340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="b3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="950" y="1260" />
+              <mxPoint x="950" y="1260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="b4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="1330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="b5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b6" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="b6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="b6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b8" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1860" y="1163" />
+              <mxPoint x="1860" y="1340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="b9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="b9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="b6" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1610" y="1475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2fJitdumxX4ah7tqvxO7-4" parent="1" style="html=1;shape=mxgraph.sysml.package;overflow=fill;labelX=256.08;strokeWidth=2;align=center;fillColor=none;" value="&lt;p style=&quot;margin:0px;margin-top:4px;margin-left:7px;text-align:left;&quot;&gt;req [Autonomous Vehicle]&lt;/p&gt;" vertex="1">
+          <mxGeometry height="1380" width="1590" x="290" y="150" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

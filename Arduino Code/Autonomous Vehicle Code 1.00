@@ -1,0 +1,152 @@
+// ─────────────────────────────────────
+// UltrasonicSensor
+// ─────────────────────────────────────
+class UltrasonicSensor {
+  int trig, echo;
+
+public:
+  UltrasonicSensor(int trig, int echo) : trig(trig), echo(echo) {}
+
+  void begin() {
+    pinMode(trig, OUTPUT);
+    pinMode(echo, INPUT);
+  }
+
+  long getDistance() {
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+    long duration = pulseIn(echo, HIGH, 30000);
+    return duration * 0.034 / 2;
+  }
+};
+
+// ─────────────────────────────────────
+// IRSensor
+// ─────────────────────────────────────
+class IRSensor {
+  int pin;
+
+public:
+  IRSensor(int pin) : pin(pin) {}
+
+  void begin() {
+    pinMode(pin, INPUT);
+  }
+
+  bool onLine() {
+    return digitalRead(pin) == LOW;
+  }
+};
+
+// ─────────────────────────────────────
+// Motor
+// ─────────────────────────────────────
+class Motor {
+  int en, in1, in2;
+
+public:
+  Motor(int en, int in1, int in2) : en(en), in1(in1), in2(in2) {}
+
+  void begin() {
+    pinMode(en,  OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+  }
+
+  void forward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }
+
+  void stop() {
+    analogWrite(en, 0);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+  }
+};
+
+// ─────────────────────────────────────
+// Car
+// ─────────────────────────────────────
+class Car {
+  Motor    leftMotor;
+  Motor    rightMotor;
+  IRSensor leftIR;
+  IRSensor rightIR;
+
+  // Tuning
+  static const int SPEED      = 150;
+  static const int TURN_SPEED = 80;
+
+public:
+  Car()
+    : leftMotor (9,  4, 5)
+    , rightMotor(10, 6, 7)
+    , leftIR    (3)
+    , rightIR   (2)
+  {}
+
+  void begin() {
+    leftMotor.begin();
+    rightMotor.begin();
+    leftIR.begin();
+    rightIR.begin();
+    stop();
+  }
+
+  void update() {
+    followLine();
+  }
+
+private:
+  void driveForward() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  void turnLeft() {
+    leftMotor.forward(TURN_SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  void turnRight() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(TURN_SPEED);
+  }
+
+  void stop() {
+    leftMotor.stop();
+    rightMotor.stop();
+  }
+
+  void followLine() {
+    bool L = leftIR.onLine();
+    bool R = rightIR.onLine();
+
+    if      ( L &&  R) driveForward();
+    else if ( L && !R) turnLeft();
+    else if (!L &&  R) turnRight();
+    else               stop();
+  }
+};
+
+// ─────────────────────────────────────
+// Main
+// ─────────────────────────────────────
+Car car;
+
+void setup() {
+  Serial.begin(9600);
+  car.begin();
+
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {}
+}
+
+void loop() {
+  car.update();
+}

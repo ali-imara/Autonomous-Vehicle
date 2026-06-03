@@ -37,7 +37,7 @@ public:
   }
 
   bool onLine() {
-    return digitalRead(pin) == LOW; 
+    return digitalRead(pin) == HIGH; 
   }
 };
 
@@ -83,9 +83,9 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // Tuning
-  static const int SPEED      = 110;
-  static const int TURN_SPEED = 90;
-  static const int STOP_DIST  = 15; // Distance in cm to stop for obstacles
+  static const int SPEED      = 50;
+  static const int TURN_SPEED = 25;
+  static const int STOP_DIST  = 0; // Distance in cm to stop for obstacles
 
 public:
   Car()
@@ -152,16 +152,13 @@ private:
 
     // Straddling logic: 
     // Both on white (!L && !R) -> Go straight
-    if      (!L && !R) driveForward(); 
+    if      (L && R) driveForward(); 
     
     // Left sensor hits the black line -> drifting right -> Turn Left to correct
-    else if ( L && !R) turnLeft();     
+    else if ( !L && R) turnLeft();     
     
     // Right sensor hits the black line -> drifting left -> Turn Right to correct
-    else if (!L &&  R) turnRight();    
-    
-    // Both hit black (crossroad or lost) -> Stop
-    else               stop();         
+    else if (L &&  !R) turnRight();           
   }
 };
 

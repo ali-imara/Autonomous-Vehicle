@@ -37,7 +37,7 @@ public:
   }
 
   bool onLine() {
-    return digitalRead(pin) == LOW;
+    return digitalRead(pin) == LOW; 
   }
 };
 
@@ -73,14 +73,19 @@ public:
 // Car
 // ─────────────────────────────────────
 class Car {
-  Motor    leftMotor;
-  Motor    rightMotor;
-  IRSensor leftIR;
-  IRSensor rightIR;
+  Motor            leftMotor;
+  Motor            rightMotor;
+  IRSensor         leftIR;
+  IRSensor         rightIR;
+  
+  // Dual Ultrasonic Sensors
+  UltrasonicSensor rightSonar;
+  UltrasonicSensor leftSonar; 
 
   // Tuning
   static const int SPEED      = 150;
   static const int TURN_SPEED = 80;
+  static const int STOP_DIST  = 15; // Distance in cm to stop for obstacles
 
 public:
   Car()
@@ -88,6 +93,8 @@ public:
     , rightMotor(10, 6, 7)
     , leftIR    (3)
     , rightIR   (2)
+    , rightSonar(8, 11)   
+    , leftSonar (12, 13)
   {}
 
   void begin() {
@@ -95,10 +102,26 @@ public:
     rightMotor.begin();
     leftIR.begin();
     rightIR.begin();
+    rightSonar.begin();
+    leftSonar.begin();
     stop();
   }
 
   void update() {
+    // 1. Check for obstacles on both sides
+    long distRight = rightSonar.getDistance();
+    long distLeft = leftSonar.getDistance();
+    
+    // Check if either sensor detects a valid distance within the stopping threshold
+    bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
+    bool obstacleLeft  = (distLeft > 0 && distLeft <= STOP_DIST);
+
+    if (obstacleRight || obstacleLeft) {
+      stop();
+      return; // Exit early to avoid moving while blocked
+    }
+
+    // 2. If path is clear, follow the line
     followLine();
   }
 
@@ -127,10 +150,18 @@ private:
     bool L = leftIR.onLine();
     bool R = rightIR.onLine();
 
-    if      ( L &&  R) driveForward();
-    else if ( L && !R) turnLeft();
-    else if (!L &&  R) turnRight();
-    else               stop();
+    // Straddling logic: 
+    // Both on white (!L && !R) -> Go straight
+    if      (!L && !R) driveForward(); 
+    
+    // Left sensor hits the black line -> drifting right -> Turn Left to correct
+    else if ( L && !R) turnLeft();     
+    
+    // Right sensor hits the black line -> drifting left -> Turn Right to correct
+    else if (!L &&  R) turnRight();    
+    
+    // Both hit black (crossroad or lost) -> Stop
+    else               stop();         
   }
 };
 
@@ -143,6 +174,7 @@ void setup() {
   Serial.begin(9600);
   car.begin();
 
+  // Wait 2 seconds before moving
   unsigned long startTime = millis();
   while (millis() - startTime < 2000) {}
 }

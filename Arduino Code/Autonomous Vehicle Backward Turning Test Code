@@ -1,0 +1,177 @@
+// ─────────────────────────────────────
+// UltrasonicSensor
+// ─────────────────────────────────────
+class UltrasonicSensor {
+  int trig, echo;
+
+public:
+  UltrasonicSensor(int trig, int echo) : trig(trig), echo(echo) {}
+
+  void begin() {
+    pinMode(trig, OUTPUT);
+    pinMode(echo, INPUT);
+  }
+
+  long getDistance() {
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+    long duration = pulseIn(echo, HIGH, 30000);
+    return duration * 0.034 / 2;
+  }
+};
+
+// ─────────────────────────────────────
+// IRSensor
+// ─────────────────────────────────────
+class IRSensor {
+  int pin;
+
+public:
+  IRSensor(int pin) : pin(pin) {}
+
+  void begin() {
+    pinMode(pin, INPUT);
+  }
+
+  bool onLine() {
+    return digitalRead(pin) == LOW; 
+  }
+};
+
+// ─────────────────────────────────────
+// Motor
+// ─────────────────────────────────────
+class Motor {
+  int en, in1, in2;
+
+public:
+  Motor(int en, int in1, int in2) : en(en), in1(in1), in2(in2) {}
+
+  void begin() {
+    pinMode(en,  OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+  }
+
+  void forward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }
+
+  void backward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, LOW);   
+    digitalWrite(in2, HIGH);   
+  }
+
+  void stop() {
+    analogWrite(en, 0);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+  }
+};
+
+// ─────────────────────────────────────
+// Car
+// ─────────────────────────────────────
+class Car {
+  Motor            leftMotor;
+  Motor            rightMotor;
+  IRSensor         leftIR;
+  IRSensor         rightIR;
+  UltrasonicSensor rightSonar;
+  UltrasonicSensor leftSonar; 
+
+  // Tuning
+  static const int SPEED      = 100; 
+  static const int TURN_SPEED = 80; 
+  static const int STOP_DIST  = 15;  
+
+public:
+  Car()
+    : leftMotor (9,  4, 5)
+    , rightMotor(10, 6, 7)
+    , leftIR    (3)
+    , rightIR   (2)
+    , rightSonar(8, 11)   
+    , leftSonar (12, 13)  
+  {}
+
+  void begin() {
+    leftMotor.begin();
+    rightMotor.begin();
+    leftIR.begin();
+    rightIR.begin();
+    rightSonar.begin();
+    leftSonar.begin();
+    stop();
+  }
+
+  void update() {
+    long distRight = rightSonar.getDistance();
+    long distLeft = leftSonar.getDistance();
+    
+    bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
+    bool obstacleLeft  = (distLeft > 0 && distLeft <= STOP_DIST);
+
+    if (obstacleRight || obstacleLeft) {
+      stop();
+      return; 
+    }
+
+    followLine();
+  }
+
+private:
+  void driveForward() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  // UPDATED: Tank-style turning for sharp corners
+  void turnLeft() {
+    leftMotor.backward(TURN_SPEED); // Left wheel goes backward
+    rightMotor.forward(SPEED);      // Right wheel goes forward
+  }
+
+  void turnRight() {
+    leftMotor.forward(SPEED);       // Left wheel goes forward
+    rightMotor.backward(TURN_SPEED);// Right wheel goes backward
+  }
+
+  void stop() {
+    leftMotor.stop();
+    rightMotor.stop();
+  }
+
+  void followLine() {
+    bool L = leftIR.onLine();
+    bool R = rightIR.onLine();
+
+    if      (!L && !R) driveForward(); 
+    else if ( L && !R) turnLeft();     
+    else if (!L &&  R) turnRight();    
+    else               stop();         
+  }
+};
+
+// ─────────────────────────────────────
+// Main
+// ─────────────────────────────────────
+Car car;
+
+void setup() {
+  Serial.begin(9600);
+  car.begin();
+
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {}
+}
+
+void loop() {
+  car.update();
+}

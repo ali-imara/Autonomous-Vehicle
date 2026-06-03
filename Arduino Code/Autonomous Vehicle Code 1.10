@@ -37,7 +37,7 @@ public:
   }
 
   bool onLine() {
-    return digitalRead(pin) == HIGH; 
+    return digitalRead(pin) == LOW; 
   }
 };
 
@@ -83,8 +83,8 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // Tuning
-  static const int SPEED      = 50;
-  static const int TURN_SPEED = 25;
+  static const int SPEED      = 150;
+  static const int TURN_SPEED = 100;
   static const int STOP_DIST  = 0; // Distance in cm to stop for obstacles
 
 public:
@@ -108,18 +108,6 @@ public:
   }
 
   void update() {
-    // 1. Check for obstacles on both sides
-    long distRight = rightSonar.getDistance();
-    long distLeft = leftSonar.getDistance();
-    
-    // Check if either sensor detects a valid distance within the stopping threshold
-    bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
-    bool obstacleLeft  = (distLeft > 0 && distLeft <= STOP_DIST);
-
-    if (obstacleRight || obstacleLeft) {
-      stop();
-      return; // Exit early to avoid moving while blocked
-    }
 
     // 2. If path is clear, follow the line
     followLine();
@@ -155,10 +143,10 @@ private:
     if      (L && R) driveForward(); 
     
     // Left sensor hits the black line -> drifting right -> Turn Left to correct
-    else if ( !L && R) turnLeft();     
+    else if ( !L && R) turnRight();     
     
     // Right sensor hits the black line -> drifting left -> Turn Right to correct
-    else if (L &&  !R) turnRight();           
+    else if (L &&  !R) turnLeft();           
   }
 };
 

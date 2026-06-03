@@ -37,7 +37,7 @@ public:
   }
 
   bool onLine() {
-    return digitalRead(pin) == LOW; 
+    return digitalRead(pin) == HIGH; 
   }
 };
 
@@ -88,8 +88,8 @@ class Car {
 
   // Tuning
   static const int SPEED      = 100; 
-  static const int TURN_SPEED = 80; 
-  static const int STOP_DIST  = 15;  
+  static const int TURN_SPEED = 70; 
+  static const int STOP_DIST  = 0;  
 
 public:
   Car()
@@ -152,10 +152,9 @@ private:
     bool L = leftIR.onLine();
     bool R = rightIR.onLine();
 
-    if      (!L && !R) driveForward(); 
-    else if ( L && !R) turnLeft();     
-    else if (!L &&  R) turnRight();    
-    else               stop();         
+    if      (L && R) driveForward(); 
+    else if ( !L && R) turnLeft();     
+    else if (L &&  !R) turnRight();    
   }
 };
 

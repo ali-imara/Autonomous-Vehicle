@@ -83,8 +83,8 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // Tuning
-  static const int SPEED      = 150;
-  static const int TURN_SPEED = 80;
+  static const int SPEED      = 110;
+  static const int TURN_SPEED = 90;
   static const int STOP_DIST  = 15; // Distance in cm to stop for obstacles
 
 public:

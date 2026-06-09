@@ -85,7 +85,7 @@ class Car {
   // Tuning
   static const int SPEED      = 150;
   static const int TURN_SPEED = 100;
-  static const int STOP_DIST  = 0; // Distance in cm to stop for obstacles
+  static const int STOP_DIST  = 15; // Distance in cm to stop for obstacles
 
 public:
   Car()
@@ -143,10 +143,10 @@ private:
     if      (L && R) driveForward(); 
     
     // Left sensor hits the black line -> drifting right -> Turn Left to correct
-    else if ( !L && R) turnRight();     
+    else if ( !L && R) turnLeft();     
     
     // Right sensor hits the black line -> drifting left -> Turn Right to correct
-    else if (L &&  !R) turnLeft();           
+    else if (L &&  !R) turnRight();           
   }
 };
 

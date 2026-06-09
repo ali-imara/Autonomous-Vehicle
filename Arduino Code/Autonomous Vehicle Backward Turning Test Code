@@ -87,9 +87,9 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // Tuning
-  static const int SPEED      = 100; 
-  static const int TURN_SPEED = 50; 
-  static const int STOP_DIST  = 0;  
+  static const int SPEED      = 80; 
+  static const int TURN_SPEED = 0; 
+  static const int STOP_DIST  = 15;  
 
 public:
   Car()
@@ -153,8 +153,8 @@ private:
     bool R = rightIR.onLine();
 
     if      (L && R) driveForward(); 
-    else if ( !L && R) turnRight();     
-    else if (L &&  !R) turnLeft();    
+    else if ( !L && R) turnLeft();     
+    else if (L &&  !R) turnRight();    
   }
 };
 

@@ -1,0 +1,314 @@
+// ─────────────────────────────────────
+// UltrasonicSensor
+// ─────────────────────────────────────
+class UltrasonicSensor {
+  int trig, echo;
+
+public:
+  UltrasonicSensor(int trig, int echo) : trig(trig), echo(echo) {}
+
+  void begin() {
+    pinMode(trig, OUTPUT);
+    pinMode(echo, INPUT);
+  }
+
+  long getDistance() {
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+    long duration = pulseIn(echo, HIGH, 30000);
+    return duration * 0.034 / 2;
+  }
+};
+
+// ─────────────────────────────────────
+// IRSensor
+// ─────────────────────────────────────
+class IRSensor {
+  int pin;
+
+public:
+  IRSensor(int pin) : pin(pin) {}
+
+  void begin() {
+    pinMode(pin, INPUT);
+  }
+
+  // Returns TRUE when on WHITE (LOW), FALSE when on BLACK (HIGH)
+  bool onLine() {
+    return digitalRead(pin) == LOW;  
+  }
+};
+
+// ─────────────────────────────────────
+// Motor
+// ─────────────────────────────────────
+class Motor {
+  int en, in1, in2;
+
+public:
+  Motor(int en, int in1, int in2) : en(en), in1(in1), in2(in2) {}
+
+  void begin() {
+    pinMode(en,  OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+  }
+
+  void forward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }
+
+  void backward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, LOW);   
+    digitalWrite(in2, HIGH);   
+  }
+
+  void stop() {
+    analogWrite(en, 0);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+  }
+};
+
+// ─────────────────────────────────────
+// Car
+// ─────────────────────────────────────
+class Car {
+  Motor            leftMotor;
+  Motor            rightMotor;
+  IRSensor         leftIR;
+  IRSensor         rightIR;
+  UltrasonicSensor rightSonar;
+  UltrasonicSensor leftSonar; 
+
+  // --- TUNING ---
+  static const int SPEED      = 100; // Lowered to compensate for 16mm height
+  static const int TURN_SPEED = 70;  // Lowered to prevent outrunning the line
+  static const int STOP_DIST  = 15;  
+
+  // --- LINE FOLLOWING TIMERS ---
+  unsigned long turnStartTime = 0;
+  bool isTurning = false;
+
+  // --- OBSTACLE AVOIDANCE STATE MACHINE ---
+  enum AvoidState {
+    IDLE,         // Normal line following
+    SPIN_RIGHT_1, // Turning away from object
+    DRIVE_FWD_1,  // Driving past the width
+    SPIN_LEFT_1,  // Turning parallel to the line
+    DRIVE_FWD_2,  // Driving past the length
+    SPIN_LEFT_2,  // Turning back toward the line
+    FIND_LINE,    // Driving blindly until we see black
+    NUDGE_RIGHT   // Straightening out on the track
+  };
+
+  AvoidState avoidState = IDLE; 
+  unsigned long avoidTimer = 0; 
+
+public:
+  Car()
+    : leftMotor (9,  4, 5)
+    , rightMotor(10, 6, 7)
+    , leftIR    (3)
+    , rightIR   (2)
+    , rightSonar(8, 11)   
+    , leftSonar (12, 13)  
+  {}
+
+  void begin() {
+    leftMotor.begin();
+    rightMotor.begin();
+    leftIR.begin();
+    rightIR.begin();
+    rightSonar.begin();
+    leftSonar.begin();
+    stop();
+  }
+
+  void update() {
+    // 1. Are we currently avoiding an obstacle?
+    if (avoidState != IDLE) {
+      handleObstacleAvoidance();
+      return; // Skip normal line following until the maneuver is done
+    }
+
+    // 2. Normal operation: Check for new obstacles
+    long distRight = rightSonar.getDistance();
+    long distLeft = leftSonar.getDistance();
+    
+    bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
+    bool obstacleLeft  = (distLeft > 0 && distLeft <= STOP_DIST);
+
+    if (obstacleRight || obstacleLeft) {
+      stop();
+      // Start the state machine sequence
+      avoidState = SPIN_RIGHT_1; 
+      avoidTimer = millis(); 
+      return; 
+    }
+
+    // 3. Path is clear -> Follow the line
+    followLine();
+  }
+
+private:
+  void driveForward() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  // Smooth Pivots for gentle line drifting
+  void turnLeft() {
+    leftMotor.stop();             
+    rightMotor.forward(SPEED);    
+  }
+
+  void turnRight() {
+    leftMotor.forward(SPEED);     
+    rightMotor.stop();            
+  }
+
+  // Tank Spins for sharp curves and box bypassing
+  void spinLeft() {
+    leftMotor.backward(TURN_SPEED); 
+    rightMotor.forward(SPEED);      
+  }
+
+  void spinRight() {
+    leftMotor.forward(SPEED);       
+    rightMotor.backward(TURN_SPEED);
+  }
+
+  void stop() {
+    leftMotor.stop();
+    rightMotor.stop();
+  }
+
+  // --- TIME-ESCALATED LINE FOLLOWING ---
+  void followLine() {
+    bool L = leftIR.onLine(); // true = White, false = Black
+    bool R = rightIR.onLine(); // true = White, false = Black
+
+    // 1. Both on white -> Straddling perfectly
+    if (L && R) {
+      driveForward(); 
+      isTurning = false; 
+    } 
+    // 2. Left sensor hits black -> Turn Left
+    else if (!L && R) {
+      if (!isTurning) {
+        turnStartTime = millis(); 
+        isTurning = true;
+      }
+      if (millis() - turnStartTime > 100) { // More than 100ms = sharp curve
+        spinLeft(); 
+      } else {
+        turnLeft(); 
+      }
+    } 
+    // 3. Right sensor hits black -> Turn Right
+    else if (L && !R) {
+      if (!isTurning) {
+        turnStartTime = millis(); 
+        isTurning = true;
+      }
+      if (millis() - turnStartTime > 100) { // More than 100ms = sharp curve
+        spinRight(); 
+      } else {
+        turnRight(); 
+      }
+    }
+  }
+
+  // --- NON-BLOCKING BOX BYPASS ---
+  void handleObstacleAvoidance() {
+    unsigned long elapsed = millis() - avoidTimer; 
+
+    switch (avoidState) {
+      case SPIN_RIGHT_1:
+        spinRight();
+        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+          avoidState = DRIVE_FWD_1; 
+          avoidTimer = millis();    
+        }
+        break;
+
+      case DRIVE_FWD_1:
+        driveForward();
+        if (elapsed > 600) { // ⚠️ TUNE: Distance to clear obstacle width
+          avoidState = SPIN_LEFT_1;
+          avoidTimer = millis();
+        }
+        break;
+
+      case SPIN_LEFT_1:
+        spinLeft();
+        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+          avoidState = DRIVE_FWD_2;
+          avoidTimer = millis();
+        }
+        break;
+
+      case DRIVE_FWD_2:
+        driveForward();
+        if (elapsed > 800) { // ⚠️ TUNE: Distance to clear obstacle length
+          avoidState = SPIN_LEFT_2;
+          avoidTimer = millis();
+        }
+        break;
+
+      case SPIN_LEFT_2:
+        spinLeft();
+        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+          avoidState = FIND_LINE;
+          avoidTimer = millis(); 
+        }
+        break;
+
+      case FIND_LINE:
+        driveForward();
+        // Wait until EITHER sensor hits the black line
+        if (!leftIR.onLine() || !rightIR.onLine()) {
+          avoidState = NUDGE_RIGHT;
+          avoidTimer = millis();
+        }
+        break;
+
+      case NUDGE_RIGHT:
+        spinRight(); 
+        if (elapsed > 200) { // ⚠️ TUNE: Quick bump to straighten on track
+          stop();
+          isTurning = false;   // Reset line memory
+          avoidState = IDLE;   // Back to normal!
+        }
+        break;
+
+      case IDLE:
+        break;
+    }
+  }
+};
+
+// ─────────────────────────────────────
+// Main
+// ─────────────────────────────────────
+Car car;
+
+void setup() {
+  Serial.begin(9600);
+  car.begin();
+
+  // Wait 2 seconds before moving
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {}
+}
+
+void loop() {
+  car.update();
+}

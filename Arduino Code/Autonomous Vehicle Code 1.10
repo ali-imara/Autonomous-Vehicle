@@ -139,7 +139,7 @@ private:
     bool R = rightIR.onLine();
 
     // Straddling logic: 
-    // Both on white (!L && !R) -> Go straight
+    // Both on white (L && R) -> Go straight
     if      (L && R) driveForward(); 
     
     // Left sensor hits the black line -> drifting right -> Turn Left to correct

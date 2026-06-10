@@ -179,10 +179,10 @@ private:
       }
       
       // If turning for more than 100ms, escalate to sharp spin
-      if (millis() - turnStartTime > 100) {
-        spinLeft(); 
+      if (millis() - turnStartTime > 300) {
+        spinRight(); 
       } else {
-        turnLeft(); 
+        turnRight(); 
       }
     } 
     // 3. Right sensor hits black -> Drifting left, need to turn right
@@ -193,10 +193,10 @@ private:
       }
       
       // If turning for more than 100ms, escalate to sharp spin
-      if (millis() - turnStartTime > 100) {
-        spinRight(); 
+      if (millis() - turnStartTime > 300) {
+        spinLeft(); 
       } else {
-        turnRight(); 
+        turnLeft(); 
       }
     }
   }

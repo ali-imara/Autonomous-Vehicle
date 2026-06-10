@@ -143,10 +143,10 @@ private:
     if      (L && R) driveForward(); 
     
     // Left sensor hits the black line -> drifting right -> Turn Left to correct
-    else if ( !L && R) turnLeft();     
+    else if ( !L && R) turnRight();     
     
     // Right sensor hits the black line -> drifting left -> Turn Right to correct
-    else if (L &&  !R) turnRight();           
+    else if (L &&  !R) turnLeft();           
   }
 };
 

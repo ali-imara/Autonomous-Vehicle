@@ -88,9 +88,9 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // --- TUNING ---
-  static const int SPEED      = 100; // Lowered to compensate for 16mm height
-  static const int TURN_SPEED = 70;  // Lowered to prevent outrunning the line
-  static const int STOP_DIST  = 15;  
+  static const int SPEED      = 90; // Lowered to compensate for 16mm height
+  static const int TURN_SPEED = 60;  // Lowered to prevent outrunning the line
+  static const int STOP_DIST  = 20;  
 
   // --- LINE FOLLOWING TIMERS ---
   unsigned long turnStartTime = 0;
@@ -206,10 +206,10 @@ private:
         turnStartTime = millis(); 
         isTurning = true;
       }
-      if (millis() - turnStartTime > 100) { // More than 100ms = sharp curve
-        spinLeft(); 
+      if (millis() - turnStartTime > 300) { // More than 100ms = sharp curve
+        spinRight(); 
       } else {
-        turnLeft(); 
+        turnRight(); 
       }
     } 
     // 3. Right sensor hits black -> Turn Right
@@ -218,10 +218,10 @@ private:
         turnStartTime = millis(); 
         isTurning = true;
       }
-      if (millis() - turnStartTime > 100) { // More than 100ms = sharp curve
-        spinRight(); 
+      if (millis() - turnStartTime > 300) { // More than 100ms = sharp curve
+        spinLeft(); 
       } else {
-        turnRight(); 
+        turnLeft(); 
       }
     }
   }
@@ -265,7 +265,7 @@ private:
 
       case SPIN_LEFT_2:
         spinLeft();
-        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+        if (elapsed > 250) { // ⚠️ TUNE: Time for 90-degree turn
           avoidState = FIND_LINE;
           avoidTimer = millis(); 
         }

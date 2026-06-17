@@ -88,8 +88,8 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // --- TUNING ---
-  static const int SPEED      = 90; // Lowered to compensate for 16mm height
-  static const int TURN_SPEED = 60;  // Lowered to prevent outrunning the line
+  static const int SPEED      = 90; 
+  static const int TURN_SPEED = 30;  
   static const int STOP_DIST  = 20;  
 
   // --- LINE FOLLOWING TIMERS ---
@@ -165,13 +165,13 @@ private:
 
   // Smooth Pivots for gentle line drifting
   void turnLeft() {
-    leftMotor.stop();             
+    leftMotor.forward(TURN_SPEED);             
     rightMotor.forward(SPEED);    
   }
 
   void turnRight() {
     leftMotor.forward(SPEED);     
-    rightMotor.stop();            
+    rightMotor.forward(TURN_SPEED);            
   }
 
   // Tank Spins for sharp curves and box bypassing
@@ -226,14 +226,13 @@ private:
     }
   }
 
-  // --- NON-BLOCKING BOX BYPASS ---
   void handleObstacleAvoidance() {
     unsigned long elapsed = millis() - avoidTimer; 
 
     switch (avoidState) {
       case SPIN_RIGHT_1:
         spinRight();
-        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+        if (elapsed > 400) { // Time for 90-degree turn
           avoidState = DRIVE_FWD_1; 
           avoidTimer = millis();    
         }
@@ -241,7 +240,7 @@ private:
 
       case DRIVE_FWD_1:
         driveForward();
-        if (elapsed > 600) { // ⚠️ TUNE: Distance to clear obstacle width
+        if (elapsed > 600) { // Distance to clear obstacle width
           avoidState = SPIN_LEFT_1;
           avoidTimer = millis();
         }
@@ -249,7 +248,7 @@ private:
 
       case SPIN_LEFT_1:
         spinLeft();
-        if (elapsed > 400) { // ⚠️ TUNE: Time for 90-degree turn
+        if (elapsed > 400) { // Time for 90-degree turn
           avoidState = DRIVE_FWD_2;
           avoidTimer = millis();
         }
@@ -257,7 +256,7 @@ private:
 
       case DRIVE_FWD_2:
         driveForward();
-        if (elapsed > 800) { // ⚠️ TUNE: Distance to clear obstacle length
+        if (elapsed > 800) { // Distance to clear obstacle length
           avoidState = SPIN_LEFT_2;
           avoidTimer = millis();
         }
@@ -265,7 +264,7 @@ private:
 
       case SPIN_LEFT_2:
         spinLeft();
-        if (elapsed > 250) { // ⚠️ TUNE: Time for 90-degree turn
+        if (elapsed > 250) { // Time for 90-degree turn
           avoidState = FIND_LINE;
           avoidTimer = millis(); 
         }
@@ -282,7 +281,7 @@ private:
 
       case NUDGE_RIGHT:
         spinRight(); 
-        if (elapsed > 200) { // ⚠️ TUNE: Quick bump to straighten on track
+        if (elapsed > 300) { // Quick bump to straighten on track
           stop();
           isTurning = false;   // Reset line memory
           avoidState = IDLE;   // Back to normal!

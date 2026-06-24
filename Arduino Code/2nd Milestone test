@@ -88,18 +88,16 @@ class Car {
   UltrasonicSensor leftSonar; 
 
   // --- TUNING ---
-  static const int SPEED               = 90; 
-  static const int TURN_SPEED          = 30;  
-  static const int STOP_DIST           = 20;  
-  static const int U_TURN_BLIND_TIME   = 500; // ms to spin before looking for the line again
+  static const int SPEED      = 85; 
+  static const int TURN_SPEED = 50;  
+  static const int STOP_DIST  = 16;  
 
   // --- LINE FOLLOWING TIMERS ---
   unsigned long turnStartTime = 0;
   bool isTurning = false;
 
-  // --- U-TURN STATE VARIABLES ---
-  bool isUTurning = false;
-  unsigned long uTurnTimer = 0;
+  // --- NEW: OBSTACLE COUNTER ---
+  int obstacleCount = 0;
 
   // --- OBSTACLE AVOIDANCE STATE MACHINE ---
   enum AvoidState {
@@ -110,7 +108,8 @@ class Car {
     DRIVE_FWD_2,  // Driving past the length
     SPIN_LEFT_2,  // Turning back toward the line
     FIND_LINE,    // Driving blindly until we see black
-    NUDGE_RIGHT   // Straightening out on the track
+    NUDGE_RIGHT,  // Straightening out on the track
+    SPIN_180      // NEW: 180-degree turn
   };
 
   AvoidState avoidState = IDLE; 
@@ -120,8 +119,8 @@ public:
   Car()
     : leftMotor (9,  4, 5)
     , rightMotor(10, 6, 7)
-    , leftIR    (3)
-    , rightIR   (2)
+    , leftIR    (2)
+    , rightIR   (3)
     , rightSonar(8, 11)   
     , leftSonar (12, 13)  
   {}
@@ -137,19 +136,14 @@ public:
   }
 
   void update() {
+
     // 1. Are we currently avoiding an obstacle?
     if (avoidState != IDLE) {
       handleObstacleAvoidance();
       return; // Skip normal line following until the maneuver is done
     }
 
-    // 2. Are we currently executing a 180 U-Turn?
-    if (isUTurning) {
-      handleUTurn();
-      return; // Skip other logic until U-Turn completes
-    }
-
-    // 3. Normal operation: Check for new obstacles
+    // 2. Normal operation: Check for new obstacles
     long distRight = rightSonar.getDistance();
     long distLeft = leftSonar.getDistance();
     
@@ -158,13 +152,23 @@ public:
 
     if (obstacleRight || obstacleLeft) {
       stop();
-      // Start the state machine sequence
-      avoidState = SPIN_RIGHT_1; 
+      
+      // --- NEW: COUNTER LOGIC ---
+      obstacleCount++; 
+      
+      if (obstacleCount >= 2) {
+        avoidState = SPIN_180; // Second obstacle: U-Turn
+        obstacleCount = 0;     // Reset the counter
+      } else {
+        avoidState = SPIN_RIGHT_1; // First obstacle: Go around
+      }
+      // --------------------------
+
       avoidTimer = millis(); 
       return; 
     }
 
-    // 4. Path is clear -> Follow the line
+    // 3. Path is clear -> Follow the line
     followLine();
   }
 
@@ -176,13 +180,13 @@ private:
 
   // Smooth Pivots for gentle line drifting
   void turnLeft() {
-    leftMotor.forward(TURN_SPEED);             
+    leftMotor.forward(0);             
     rightMotor.forward(SPEED);    
   }
 
   void turnRight() {
     leftMotor.forward(SPEED);     
-    rightMotor.forward(TURN_SPEED);            
+    rightMotor.forward(0);            
   }
 
   // Tank Spins for sharp curves and box bypassing
@@ -206,63 +210,51 @@ private:
     bool L = leftIR.onLine(); // true = White, false = Black
     bool R = rightIR.onLine(); // true = White, false = Black
 
-    // 1. Both hit black -> Initiate U-Turn!
-    if (!L && !R) {
-      isUTurning = true;
-      uTurnTimer = millis();
-      return;
-    }
-    // 2. Both on white -> Straddling perfectly
-    else if (L && R) {
+    // 1. Both on white -> Straddling perfectly
+    if (L && R) {
       driveForward(); 
       isTurning = false; 
     } 
-    // 3. Left sensor hits black -> Turn Left
+    // 2. Left sensor hits black -> Turn Left
     else if (!L && R) {
       if (!isTurning) {
         turnStartTime = millis(); 
         isTurning = true;
       }
-      if (millis() - turnStartTime > 300) { // More than 300ms = sharp curve
-        spinRight(); 
+      if (millis() - turnStartTime > 185) { // More than 100ms = sharp curve
+        spinLeft(); 
       } else {
-        turnRight(); 
+        turnLeft(); 
       }
     } 
-    // 4. Right sensor hits black -> Turn Right
+    // 3. Right sensor hits black -> Turn Right
     else if (L && !R) {
       if (!isTurning) {
         turnStartTime = millis(); 
         isTurning = true;
       }
-      if (millis() - turnStartTime > 300) { // More than 300ms = sharp curve
-        spinLeft(); 
+      if (millis() - turnStartTime > 185) { // More than 100ms = sharp curve
+        spinRight(); 
       } else {
-        turnLeft(); 
-      }
-    }
-  }
-
-  // --- U-TURN EXECUTION ---
-  void handleUTurn() {
-    unsigned long elapsed = millis() - uTurnTimer;
-    
-    // Always spin right (tank turn) for the U-turn
-    spinRight(); 
-
-    // Step 1: Spin blindly to escape the current black marker
-    if (elapsed > U_TURN_BLIND_TIME) {
-      // Step 2: Once we are far enough off the original line, wait to hit black again
-      if (!leftIR.onLine() || !rightIR.onLine()) {
-        isUTurning = false; // We found the line going the other way!
-        isTurning = false;  // Reset line follow memory
-        stop();             // Brief pause to stabilize (optional)
+        turnRight(); 
       }
     }
   }
 
   void handleObstacleAvoidance() {
     unsigned long elapsed = millis() - avoidTimer; 
+
+    // EARLY LINE DETECTION OVERRIDE
+    if (avoidState == DRIVE_FWD_1 || avoidState == SPIN_LEFT_1 || 
+        avoidState == DRIVE_FWD_2 || avoidState == SPIN_LEFT_2 || 
+        avoidState == FIND_LINE) {
+      
+      if (!leftIR.onLine() || !rightIR.onLine()) {
+        avoidState = NUDGE_RIGHT;
+        avoidTimer = millis();
+        return; 
+      }
+    }
 
     switch (avoidState) {
       case SPIN_RIGHT_1:
@@ -299,11 +291,20 @@ private:
 
       case SPIN_LEFT_2:
         spinLeft();
-        if (elapsed > 250) { // Time for 90-degree turn
+        if (elapsed > 400) { // Time for 90-degree turn
           avoidState = FIND_LINE;
           avoidTimer = millis(); 
         }
         break;
+
+      case SPIN_180:
+        spinRight();
+        if (elapsed > 800) { // Time for roughly 180 degrees (double the 90 degree time)
+          avoidState = FIND_LINE; // Go back to searching for the line
+          avoidTimer = millis();
+        }
+        break;
+      // ----------------------------
 
       case FIND_LINE:
         driveForward();
@@ -316,7 +317,7 @@ private:
 
       case NUDGE_RIGHT:
         spinRight(); 
-        if (elapsed > 300) { // Quick bump to straighten on track
+        if (elapsed > 80) { // Quick bump to straighten on track
           stop();
           isTurning = false;   // Reset line memory
           avoidState = IDLE;   // Back to normal!

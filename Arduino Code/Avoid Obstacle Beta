@@ -18,7 +18,13 @@ public:
     digitalWrite(trig, HIGH);
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
+
     long duration = pulseIn(echo, HIGH, 30000);
+
+    if (duration == 0) {
+      return 0;
+    }
+
     return duration * 0.034 / 2;
   }
 };
@@ -36,9 +42,10 @@ public:
     pinMode(pin, INPUT);
   }
 
-  // Returns TRUE when on WHITE (LOW), FALSE when on BLACK (HIGH)
+  // TRUE = WHITE
+  // FALSE = BLACK
   bool onLine() {
-    return digitalRead(pin) == LOW;  
+    return digitalRead(pin) == LOW;
   }
 };
 
@@ -65,8 +72,8 @@ public:
 
   void backward(int speed) {
     analogWrite(en, speed);
-    digitalWrite(in1, LOW);   
-    digitalWrite(in2, HIGH);   
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
   }
 
   void stop() {
@@ -85,31 +92,36 @@ class Car {
   IRSensor         leftIR;
   IRSensor         rightIR;
   UltrasonicSensor rightSonar;
-  UltrasonicSensor leftSonar; 
+  UltrasonicSensor leftSonar;
 
   // --- TUNING ---
-  static const int SPEED      = 85; 
-  static const int TURN_SPEED = 50;  
-  static const int STOP_DIST  = 12;  
+  static const int SPEED      = 85;
+  static const int TURN_SPEED = 55;
+  static const int STOP_DIST  = 17;
 
-  // --- LINE FOLLOWING TIMERS ---
+  // Arc movement speeds
+  static const int ARC_SLOW = 50;
+  static const int ARC_FAST = 90;
+
+  // Arc timing
+  static const int STOP_TIME      = 400;
+  static const int LEFT_ARC_TIME  = 650;
+  static const int RIGHT_ARC_TIME = 3500;
+
   unsigned long turnStartTime = 0;
   bool isTurning = false;
 
-  // --- OBSTACLE AVOIDANCE STATE MACHINE ---
   enum AvoidState {
-    IDLE,         // Normal line following
-    SPIN_RIGHT_1, // Turning away from object
-    DRIVE_FWD_1,  // Driving past the width
-    SPIN_LEFT_1,  // Turning parallel to the line
-    DRIVE_FWD_2,  // Driving past the length
-    SPIN_LEFT_2,  // Turning back toward the line
-    FIND_LINE,    // Driving blindly until we see black
-    NUDGE_RIGHT   // Straightening out on the track
+    IDLE,
+    STOP_BEFORE_OBSTACLE,
+    LEFT_ARC_AROUND,
+    RIGHT_ARC_BACK,
+    SEARCH_LINE,
+    RECOVER_LINE
   };
 
-  AvoidState avoidState = IDLE; 
-  unsigned long avoidTimer = 0; 
+  AvoidState avoidState = IDLE;
+  unsigned long avoidTimer = 0;
 
 public:
   Car()
@@ -117,8 +129,8 @@ public:
     , rightMotor(10, 6, 7)
     , leftIR    (2)
     , rightIR   (3)
-    , rightSonar(8, 11)   
-    , leftSonar (12, 13)  
+    , rightSonar(8, 11)
+    , leftSonar (12, 13)
   {}
 
   void begin() {
@@ -133,28 +145,25 @@ public:
 
   void update() {
 
-    // 1. Are we currently avoiding an obstacle?
     if (avoidState != IDLE) {
       handleObstacleAvoidance();
-      return; // Skip normal line following until the maneuver is done
+      return;
     }
 
-    // 2. Normal operation: Check for new obstacles
     long distRight = rightSonar.getDistance();
-    long distLeft = leftSonar.getDistance();
-    
+    long distLeft  = leftSonar.getDistance();
+
     bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
-    bool obstacleLeft  = (distLeft > 0 && distLeft <= STOP_DIST);
+    bool obstacleLeft  = (distLeft  > 0 && distLeft  <= STOP_DIST);
 
     if (obstacleRight || obstacleLeft) {
       stop();
-      // Start the state machine sequence
-      avoidState = SPIN_RIGHT_1; 
-      avoidTimer = millis(); 
-      return; 
+      avoidState = STOP_BEFORE_OBSTACLE;
+      avoidTimer = millis();
+      isTurning = false;
+      return;
     }
 
-    // 3. Path is clear -> Follow the line
     followLine();
   }
 
@@ -164,25 +173,23 @@ private:
     rightMotor.forward(SPEED);
   }
 
-  // Smooth Pivots for gentle line drifting
   void turnLeft() {
-    leftMotor.forward(0);             
-    rightMotor.forward(SPEED);    
+    leftMotor.forward(0);
+    rightMotor.forward(SPEED);
   }
 
   void turnRight() {
-    leftMotor.forward(SPEED);     
-    rightMotor.forward(0);            
+    leftMotor.forward(SPEED);
+    rightMotor.forward(0);
   }
 
-  // Tank Spins for sharp curves and box bypassing
   void spinLeft() {
-    leftMotor.backward(TURN_SPEED); 
-    rightMotor.forward(SPEED);      
+    leftMotor.backward(TURN_SPEED);
+    rightMotor.forward(SPEED);
   }
 
   void spinRight() {
-    leftMotor.forward(SPEED);       
+    leftMotor.forward(SPEED);
     rightMotor.backward(TURN_SPEED);
   }
 
@@ -191,115 +198,140 @@ private:
     rightMotor.stop();
   }
 
-  // --- TIME-ESCALATED LINE FOLLOWING ---
-  void followLine() {
-    bool L = leftIR.onLine(); // true = White, false = Black
-    bool R = rightIR.onLine(); // true = White, false = Black
+  // LEFT ARC:
+  // left motor slow, right motor fast
+  // car curves left around the obstacle
+  void arcLeft() {
+    leftMotor.backward(ARC_SLOW);
+    rightMotor.forward(ARC_FAST);
+  }
 
-    // 1. Both on white -> Straddling perfectly
+  // RIGHT ARC:
+  // left motor fast, right motor slow
+  // car curves right back toward the line
+  void arcRight() {
+    leftMotor.forward(ARC_FAST);
+    rightMotor.forward(ARC_SLOW);
+  }
+
+  bool blackLineDetected() {
+    return !leftIR.onLine() || !rightIR.onLine();
+  }
+
+  // ─────────────────────────────────────
+  // Normal line following
+  // ─────────────────────────────────────
+  void followLine() {
+    bool L = leftIR.onLine();  // true = WHITE, false = BLACK
+    bool R = rightIR.onLine(); // true = WHITE, false = BLACK
+
     if (L && R) {
-      driveForward(); 
-      isTurning = false; 
-    } 
-    // 2. Left sensor hits black -> Turn Left
+      driveForward();
+      isTurning = false;
+    }
+
     else if (!L && R) {
       if (!isTurning) {
-        turnStartTime = millis(); 
+        turnStartTime = millis();
         isTurning = true;
       }
-      if (millis() - turnStartTime > 185) { // More than 100ms = sharp curve
-        spinLeft(); 
+
+      if (millis() - turnStartTime > 185) {
+        spinLeft();
       } else {
-        turnLeft(); 
+        turnLeft();
       }
-    } 
-    // 3. Right sensor hits black -> Turn Right
+    }
+
     else if (L && !R) {
       if (!isTurning) {
-        turnStartTime = millis(); 
+        turnStartTime = millis();
         isTurning = true;
       }
-      if (millis() - turnStartTime > 185) { // More than 100ms = sharp curve
-        spinRight(); 
+
+      if (millis() - turnStartTime > 185) {
+        spinRight();
       } else {
-        turnRight(); 
+        turnRight();
       }
+    }
+
+    else {
+      driveForward();
+      isTurning = false;
     }
   }
 
+  // ─────────────────────────────────────
+  // Obstacle avoidance:
+  // stop → left arc → right arc → find line
+  // ─────────────────────────────────────
   void handleObstacleAvoidance() {
-    unsigned long elapsed = millis() - avoidTimer; 
-
-    // If we are currently navigating around the box (but past the initial turn away from the line),
-    // constantly check if the line curves back underneath us.
-    if (avoidState == DRIVE_FWD_1 || avoidState == SPIN_LEFT_1 || 
-        avoidState == DRIVE_FWD_2 || avoidState == SPIN_LEFT_2 || 
-        avoidState == FIND_LINE) {
-      
-      if (!leftIR.onLine() || !rightIR.onLine()) {
-        avoidState = NUDGE_RIGHT;
-        avoidTimer = millis();
-        return; // Exit early so the state machine handles NUDGE_RIGHT on the next loop
-      }
-    }
-    // ------------------------------------------
+    unsigned long elapsed = millis() - avoidTimer;
 
     switch (avoidState) {
-      case SPIN_RIGHT_1:
-        spinRight();
-        if (elapsed > 400) { // Time for 90-degree turn
-          avoidState = DRIVE_FWD_1; 
-          avoidTimer = millis();    
-        }
-        break;
 
-      case DRIVE_FWD_1:
-        driveForward();
-        if (elapsed > 800) { // Distance to clear obstacle width
-          avoidState = SPIN_LEFT_1;
+      case STOP_BEFORE_OBSTACLE:
+        stop();
+
+        if (elapsed > STOP_TIME) {
+          avoidState = LEFT_ARC_AROUND;
           avoidTimer = millis();
         }
         break;
 
-      case SPIN_LEFT_1:
-        spinLeft();
-        if (elapsed > 400) { // Time for 90-degree turn
-          avoidState = DRIVE_FWD_2;
+      case LEFT_ARC_AROUND:
+        // First part of the arc: move left around obstacle
+        // Do NOT detect line here because sensors may still see old line
+        arcLeft();
+
+        if (elapsed > LEFT_ARC_TIME) {
+          avoidState = RIGHT_ARC_BACK;
           avoidTimer = millis();
         }
         break;
 
-      case DRIVE_FWD_2:
-        driveForward();
-        if (elapsed > 800) { // Distance to clear obstacle length
-          avoidState = SPIN_LEFT_2;
-          avoidTimer = millis();
-        }
-        break;
+      case RIGHT_ARC_BACK:
+        // Second part of the arc: curve right back toward the original line
+        arcRight();
 
-      case SPIN_LEFT_2:
-        spinLeft();
-        if (elapsed > 400) { // Time for 90-degree turn
-          avoidState = FIND_LINE;
-          avoidTimer = millis(); 
-        }
-        break;
-
-      case FIND_LINE:
-        driveForward();
-        // Wait until EITHER sensor hits the black line
-        if (!leftIR.onLine() || !rightIR.onLine()) {
-          avoidState = NUDGE_RIGHT;
-          avoidTimer = millis();
-        }
-        break;
-
-      case NUDGE_RIGHT:
-        spinRight(); 
-        if (elapsed > 60) { // Quick bump to straighten on track
+        // Start detecting line after a small delay
+        // so it does not instantly detect the old line
+        if (elapsed > 500 && blackLineDetected()) {
+          avoidState = RECOVER_LINE;
           stop();
-          isTurning = false;   // Reset line memory
-          avoidState = IDLE;   // Back to normal!
+          delay(150);
+          avoidTimer = millis();
+          isTurning = false;
+        }
+
+        // If line was not found yet, keep searching right
+        if (elapsed > RIGHT_ARC_TIME) {
+          avoidState = SEARCH_LINE;
+          avoidTimer = millis();
+        }
+        break;
+
+      case SEARCH_LINE:
+        // Keep curving right until black line is found
+        arcRight();
+
+        if (blackLineDetected()) {
+          avoidState = RECOVER_LINE;
+          stop();
+          delay(150);
+          avoidTimer = millis();
+          isTurning = false;
+        }
+        break;
+
+      case RECOVER_LINE:
+        // Let normal line following control the car again
+        followLine();
+
+        if (elapsed > 800) {
+          avoidState = IDLE;
+          isTurning = false;
         }
         break;
 
@@ -318,7 +350,6 @@ void setup() {
   Serial.begin(9600);
   car.begin();
 
-  // Wait 2 seconds before moving
   unsigned long startTime = millis();
   while (millis() - startTime < 2000) {}
 }

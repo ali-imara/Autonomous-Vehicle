@@ -90,7 +90,7 @@ class Car {
   // --- TUNING ---
   static const int SPEED      = 85; 
   static const int TURN_SPEED = 50;  
-  static const int STOP_DIST  = 16;  
+  static const int STOP_DIST  = 12;  
 
   // --- LINE FOLLOWING TIMERS ---
   unsigned long turnStartTime = 0;
@@ -230,6 +230,20 @@ private:
   void handleObstacleAvoidance() {
     unsigned long elapsed = millis() - avoidTimer; 
 
+    // If we are currently navigating around the box (but past the initial turn away from the line),
+    // constantly check if the line curves back underneath us.
+    if (avoidState == DRIVE_FWD_1 || avoidState == SPIN_LEFT_1 || 
+        avoidState == DRIVE_FWD_2 || avoidState == SPIN_LEFT_2 || 
+        avoidState == FIND_LINE) {
+      
+      if (!leftIR.onLine() || !rightIR.onLine()) {
+        avoidState = NUDGE_RIGHT;
+        avoidTimer = millis();
+        return; // Exit early so the state machine handles NUDGE_RIGHT on the next loop
+      }
+    }
+    // ------------------------------------------
+
     switch (avoidState) {
       case SPIN_RIGHT_1:
         spinRight();
@@ -241,7 +255,7 @@ private:
 
       case DRIVE_FWD_1:
         driveForward();
-        if (elapsed > 600) { // Distance to clear obstacle width
+        if (elapsed > 800) { // Distance to clear obstacle width
           avoidState = SPIN_LEFT_1;
           avoidTimer = millis();
         }
@@ -282,7 +296,7 @@ private:
 
       case NUDGE_RIGHT:
         spinRight(); 
-        if (elapsed > 80) { // Quick bump to straighten on track
+        if (elapsed > 60) { // Quick bump to straighten on track
           stop();
           isTurning = false;   // Reset line memory
           avoidState = IDLE;   // Back to normal!

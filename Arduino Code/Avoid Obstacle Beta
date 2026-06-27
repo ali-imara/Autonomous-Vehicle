@@ -19,7 +19,7 @@ public:
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
 
-    long duration = pulseIn(echo, HIGH, 30000);
+    long duration = pulseIn(echo, HIGH, 5000);
 
     if (duration == 0) {
       return 0;

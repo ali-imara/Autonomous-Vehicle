@@ -121,6 +121,9 @@ class Car {
   // ADDED: Counter to track the number of obstacles encountered
   int obstacleCount = 0; 
 
+  unsigned long lastSonarTime = 0; // Add this with your other variables at the top of the Car class
+  bool checkRightSonarNext = true; // Helps alternate sonars to prevent cross-talk
+
   enum AvoidState {
     IDLE,
     STOP_BEFORE_OBSTACLE,
@@ -154,15 +157,26 @@ public:
     stop();
   }
 
- void update() {
-    if (avoidState != IDLE) {
-      handleObstacleAvoidance();
-      return;
-    }
+void update() {
+  if (avoidState != IDLE) {
+    handleObstacleAvoidance();
+    return;
+  }
 
-    long distRight = rightSonar.getDistance();
-    delay(25); 
-    long distLeft  = leftSonar.getDistance();
+  // ONLY check sonars every 30ms to free up the CPU for the IR sensors
+  if (millis() - lastSonarTime > 30) {
+    lastSonarTime = millis();
+    
+    // Alternate reading left and right to prevent cross-talk without using delay()
+    long distRight = 0;
+    long distLeft = 0;
+    
+    if (checkRightSonarNext) {
+      distRight = rightSonar.getDistance();
+    } else {
+      distLeft = leftSonar.getDistance();
+    }
+    checkRightSonarNext = !checkRightSonarNext; // Flip for the next cycle
 
     bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
     bool obstacleLeft  = (distLeft  > 0 && distLeft  <= STOP_DIST);
@@ -184,8 +198,11 @@ public:
       isTurning = false;
       return;
     }
-    followLine();
   }
+  
+  // Now, this runs incredibly fast, catching sharp turns instantly!
+  followLine(); 
+}
 
 private:
   void driveForward() {

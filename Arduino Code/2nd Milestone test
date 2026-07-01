@@ -19,8 +19,7 @@ public:
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
 
-    // Timeout set to 15000us (prevents hardware lockups on clones, 
-    // but fast enough to not block the main loop)
+    // Timeout set to 15000us
     long duration = pulseIn(echo, HIGH, 15000);
 
     if (duration == 0) {
@@ -97,32 +96,32 @@ class Car {
   UltrasonicSensor leftSonar;
 
   // --- TUNING ---
-  static const int SPEED      = 70;
-  static const int TURN_SPEED = 55;
+  static const int SPEED      = 77;
+  static const int TURN_SPEED = 50;
   static const int STOP_DIST  = 17;
 
-  // Speeds for dodging LEFT (Tight pivot to avoid the front)
+  // Speeds for dodging LEFT
   static const int DODGE_ARC_SLOW = 10; 
   static const int DODGE_ARC_FAST = 80;
 
-  // Speeds for sweeping RIGHT (More forward momentum to clear the tail)
-  static const int RETURN_ARC_SLOW = 40; 
-  static const int RETURN_ARC_FAST = 80; 
+  // Speeds for sweeping RIGHT
+  static const int RETURN_ARC_SLOW = 48; 
+  static const int RETURN_ARC_FAST = 90; 
 
   // Arc timing
   static const int STOP_TIME      = 400;
-  static const int LEFT_ARC_TIME  = 650; // Increased to pull further past the object
+  static const int LEFT_ARC_TIME  = 660;
   static const int RIGHT_ARC_TIME = 3500;
+
   unsigned long lastObstacleTime = 0;
 
   unsigned long turnStartTime = 0;
   bool isTurning = false;
 
-  // ADDED: Counter to track the number of obstacles encountered
   int obstacleCount = 0; 
 
-  unsigned long lastSonarTime = 0; // Add this with your other variables at the top of the Car class
-  bool checkRightSonarNext = true; // Helps alternate sonars to prevent cross-talk
+  unsigned long lastSonarTime = 0;
+  bool checkRightSonarNext = true;
 
   enum AvoidState {
     IDLE,
@@ -131,7 +130,7 @@ class Car {
     RIGHT_ARC_BACK,
     SEARCH_LINE,
     RECOVER_LINE,
-    TURN_180 // ADDED: New state for turning around
+    TURN_180
   };
 
   AvoidState avoidState = IDLE;
@@ -157,52 +156,51 @@ public:
     stop();
   }
 
-void update() {
-  if (avoidState != IDLE) {
-    handleObstacleAvoidance();
-    return;
-  }
-
-  // ONLY check sonars every 30ms to free up the CPU for the IR sensors
-  if (millis() - lastSonarTime > 30) {
-    lastSonarTime = millis();
-    
-    // Alternate reading left and right to prevent cross-talk without using delay()
-    long distRight = 0;
-    long distLeft = 0;
-    
-    if (checkRightSonarNext) {
-      distRight = rightSonar.getDistance();
-    } else {
-      distLeft = leftSonar.getDistance();
-    }
-    checkRightSonarNext = !checkRightSonarNext; // Flip for the next cycle
-
-    bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
-    bool obstacleLeft  = (distLeft  > 0 && distLeft  <= STOP_DIST);
-
-    // Only count if we haven't seen an obstacle in the last 2 seconds (Debounce)
-    if ((obstacleRight || obstacleLeft) && (millis() - lastObstacleTime > 2000)) {
-      stop();
-      lastObstacleTime = millis(); // Lock out the counter for 2 seconds
-      
-      obstacleCount++;
-      
-      if (obstacleCount >= 2) {
-        avoidState = TURN_180;
-      } else {
-        avoidState = STOP_BEFORE_OBSTACLE;
-      }
-      
-      avoidTimer = millis();
-      isTurning = false;
+  void update() {
+    if (avoidState != IDLE) {
+      handleObstacleAvoidance();
       return;
     }
+
+    // ONLY check sonars every 30ms
+    if (millis() - lastSonarTime > 100) {
+      lastSonarTime = millis();
+
+      long distRight = 0;
+      long distLeft = 0;
+
+      if (checkRightSonarNext) {
+        distRight = rightSonar.getDistance();
+      } else {
+        distLeft = leftSonar.getDistance();
+      }
+
+      checkRightSonarNext = !checkRightSonarNext;
+
+      bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
+      bool obstacleLeft  = (distLeft  > 0 && distLeft  <= STOP_DIST);
+
+      // Only count if we haven't seen an obstacle in the last 2 seconds
+      if ((obstacleRight || obstacleLeft) && (millis() - lastObstacleTime > 2000)) {
+        stop();
+        lastObstacleTime = millis();
+
+        obstacleCount++;
+
+        if (obstacleCount >= 2) {
+          avoidState = TURN_180;
+        } else {
+          avoidState = STOP_BEFORE_OBSTACLE;
+        }
+
+        avoidTimer = millis();
+        isTurning = false;
+        return;
+      }
+    }
+
+    followLine(); 
   }
-  
-  // Now, this runs incredibly fast, catching sharp turns instantly!
-  followLine(); 
-}
 
 private:
   void driveForward() {
@@ -235,13 +233,13 @@ private:
     rightMotor.stop();
   }
 
-  // LEFT ARC: Tight dodge around the front
+  // LEFT ARC
   void arcLeft() {
     leftMotor.forward(DODGE_ARC_SLOW);
     rightMotor.forward(DODGE_ARC_FAST);
   }
 
-  // RIGHT ARC: Sweeping merge to pull the tail clear
+  // RIGHT ARC
   void arcRight() {
     leftMotor.forward(RETURN_ARC_FAST);
     rightMotor.forward(RETURN_ARC_SLOW);
@@ -315,9 +313,8 @@ private:
 
       case LEFT_ARC_AROUND:
         {
-          // Collision override. If the line curve brings the obstacle 
-          // too close during the arc, push away aggressively.
           long currentDist = rightSonar.getDistance();
+
           if (currentDist > 0 && currentDist < 10) { 
             spinLeft(); 
           } else {
@@ -334,16 +331,19 @@ private:
       case RIGHT_ARC_BACK:
         arcRight();
 
-        // Dropped blind timer to 150ms. Grab the line instantly.
+        // When line is detected again from ANY sensor, spin left to adjust
         if (elapsed > 150 && blackLineDetected()) {
-          avoidState = RECOVER_LINE;
+          spinLeft();
+          delay(150);     // adjust by spinning left
           stop();
-          delay(200); // Small delay to maintain momentum control
+          delay(250);     // original small pause
+
+          avoidState = RECOVER_LINE;
           avoidTimer = millis();
           isTurning = false;
+          break;
         }
 
-        // Move to search mode quicker if we missed the line
         if (elapsed > 2500) {
           avoidState = SEARCH_LINE;
           avoidTimer = millis();
@@ -353,36 +353,39 @@ private:
       case SEARCH_LINE:
         arcRight();
 
+        // When line is detected again from ANY sensor, spin left to adjust
         if (blackLineDetected()) {
-          avoidState = RECOVER_LINE;
+          spinLeft();
+          delay(150);     // adjust by spinning left
           stop();
-          delay(200);
+          delay(250);     // original small pause
+
+          avoidState = RECOVER_LINE;
           avoidTimer = millis();
           isTurning = false;
+          break;
         }
 
-        // Failsafe. If it searches for 6 seconds, just stop so it 
-        // doesn't drive off the table or do endless donuts.
         if (elapsed > 6000) {
           stop();
         }
         break;
 
-      // ADDED: Case to handle turning 180 degrees
-case TURN_180:
-        spinLeft(); // Spin 180
-        obstacleCount=0;
-        // Spin blindly for at least 800ms to ensure we leave the old line
-        // Then start looking for the line again
-        if (elapsed > 1400 && blackLineDetected()) {
-          avoidState = RECOVER_LINE;
+      case TURN_180:
+        spinLeft();
+        obstacleCount = 0;
+
+        // When line is detected again from ANY sensor, spin left to adjust
+        if (elapsed > 1600 && blackLineDetected()) {
           stop();
-          delay(200); 
+          delay(300);     // original small pause
+
+          avoidState = RECOVER_LINE;
           avoidTimer = millis();
           isTurning = false;
+          break;
         }
 
-        // Failsafe: if for some reason it spins for a long time and misses the line
         if (elapsed > 8000) {
           avoidState = SEARCH_LINE;
           avoidTimer = millis();
@@ -392,7 +395,7 @@ case TURN_180:
       case RECOVER_LINE:
         followLine();
 
-        if (elapsed > 800) {
+        if (elapsed > 150) {
           avoidState = IDLE;
           isTurning = false;
         }

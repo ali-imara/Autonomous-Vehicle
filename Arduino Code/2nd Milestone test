@@ -97,21 +97,21 @@ class Car {
   UltrasonicSensor leftSonar;
 
   // --- TUNING ---
-  static const int SPEED      = 130;
-  static const int TURN_SPEED = 120;
+  static const int SPEED      = 70;
+  static const int TURN_SPEED = 55;
   static const int STOP_DIST  = 17;
 
   // Speeds for dodging LEFT (Tight pivot to avoid the front)
   static const int DODGE_ARC_SLOW = 10; 
-  static const int DODGE_ARC_FAST = 120;
+  static const int DODGE_ARC_FAST = 80;
 
   // Speeds for sweeping RIGHT (More forward momentum to clear the tail)
-  static const int RETURN_ARC_SLOW = 70; 
-  static const int RETURN_ARC_FAST = 130; 
+  static const int RETURN_ARC_SLOW = 40; 
+  static const int RETURN_ARC_FAST = 80; 
 
   // Arc timing
   static const int STOP_TIME      = 400;
-  static const int LEFT_ARC_TIME  = 750; // Increased to pull further past the object
+  static const int LEFT_ARC_TIME  = 650; // Increased to pull further past the object
   static const int RIGHT_ARC_TIME = 3500;
   unsigned long lastObstacleTime = 0;
 
@@ -252,7 +252,7 @@ private:
         isTurning = true;
       }
 
-      if (millis() - turnStartTime > 100) {
+      if (millis() - turnStartTime > 185) {
         spinLeft();
       } else {
         turnLeft();
@@ -265,7 +265,7 @@ private:
         isTurning = true;
       }
 
-      if (millis() - turnStartTime > 100) {
+      if (millis() - turnStartTime > 185) {
         spinRight();
       } else {
         turnRight();
@@ -357,7 +357,7 @@ case TURN_180:
         obstacleCount=0;
         // Spin blindly for at least 800ms to ensure we leave the old line
         // Then start looking for the line again
-        if (elapsed > 1600 && blackLineDetected()) {
+        if (elapsed > 1400 && blackLineDetected()) {
           avoidState = RECOVER_LINE;
           stop();
           delay(200); 

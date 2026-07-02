@@ -20,7 +20,7 @@ public:
     digitalWrite(trig, LOW);
 
     // Timeout set to 15000us
-    long duration = pulseIn(echo, HIGH, 15000);
+    long duration = pulseIn(echo, HIGH, 3000);
 
     if (duration == 0) {
       return 0;
@@ -162,7 +162,6 @@ public:
       return;
     }
 
-    // ONLY check sonars every 30ms
     if (millis() - lastSonarTime > 100) {
       lastSonarTime = millis();
 

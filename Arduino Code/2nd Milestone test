@@ -20,7 +20,7 @@ public:
     digitalWrite(trig, LOW);
 
     // Timeout set to 15000us
-    long duration = pulseIn(echo, HIGH, 3000);
+    long duration = pulseIn(echo, HIGH, 6000);
 
     if (duration == 0) {
       return 0;
@@ -96,8 +96,8 @@ class Car {
   UltrasonicSensor leftSonar;
 
   // --- TUNING ---
-  static const int SPEED      = 77;
-  static const int TURN_SPEED = 50;
+  static const int SPEED      = 65;
+  static const int TURN_SPEED = 0;
   static const int STOP_DIST  = 17;
 
   // Speeds for dodging LEFT
@@ -110,7 +110,7 @@ class Car {
 
   // Arc timing
   static const int STOP_TIME      = 400;
-  static const int LEFT_ARC_TIME  = 660;
+  static const int LEFT_ARC_TIME  = 650;
   static const int RIGHT_ARC_TIME = 3500;
 
   unsigned long lastObstacleTime = 0;
@@ -266,7 +266,7 @@ private:
         isTurning = true;
       }
 
-      if (millis() - turnStartTime > 185) {
+      if (millis() - turnStartTime > 140) {
         spinLeft();
       } else {
         turnLeft();
@@ -279,7 +279,7 @@ private:
         isTurning = true;
       }
 
-      if (millis() - turnStartTime > 185) {
+      if (millis() - turnStartTime > 140) {
         spinRight();
       } else {
         turnRight();
@@ -333,7 +333,7 @@ private:
         // When line is detected again from ANY sensor, spin left to adjust
         if (elapsed > 150 && blackLineDetected()) {
           spinLeft();
-          delay(150);     // adjust by spinning left
+          delay(600);     // adjust by spinning left
           stop();
           delay(250);     // original small pause
 
@@ -355,7 +355,7 @@ private:
         // When line is detected again from ANY sensor, spin left to adjust
         if (blackLineDetected()) {
           spinLeft();
-          delay(150);     // adjust by spinning left
+          delay(300);     // adjust by spinning left
           stop();
           delay(250);     // original small pause
 

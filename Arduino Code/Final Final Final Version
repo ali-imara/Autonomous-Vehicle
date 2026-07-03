@@ -1,0 +1,426 @@
+// ─────────────────────────────────────
+// UltrasonicSensor
+// ─────────────────────────────────────
+class UltrasonicSensor {
+  int trig, echo;
+
+public:
+  UltrasonicSensor(int trig, int echo) : trig(trig), echo(echo) {}
+
+  void begin() {
+    pinMode(trig, OUTPUT);
+    pinMode(echo, INPUT);
+  }
+
+  long getDistance() {
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+
+    // Timeout set to 15000us
+    long duration = pulseIn(echo, HIGH, 6000);
+
+    if (duration == 0) {
+      return 0;
+    }
+
+    return duration * 0.034 / 2;
+  }
+};
+
+// ─────────────────────────────────────
+// IRSensor
+// ─────────────────────────────────────
+class IRSensor {
+  int pin;
+
+public:
+  IRSensor(int pin) : pin(pin) {}
+
+  void begin() {
+    pinMode(pin, INPUT);
+  }
+
+  // TRUE = WHITE
+  // FALSE = BLACK
+  bool onLine() {
+    return digitalRead(pin) == LOW;
+  }
+};
+
+// ─────────────────────────────────────
+// Motor
+// ─────────────────────────────────────
+class Motor {
+  int en, in1, in2;
+
+public:
+  Motor(int en, int in1, int in2) : en(en), in1(in1), in2(in2) {}
+
+  void begin() {
+    pinMode(en,  OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+  }
+
+  void forward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }
+
+  void backward(int speed) {
+    analogWrite(en, speed);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
+  }
+
+  void stop() {
+    analogWrite(en, 0);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+  }
+};
+
+// ─────────────────────────────────────
+// Car
+// ─────────────────────────────────────
+class Car {
+  Motor            leftMotor;
+  Motor            rightMotor;
+  IRSensor         leftIR;
+  IRSensor         rightIR;
+  UltrasonicSensor rightSonar;
+  UltrasonicSensor leftSonar;
+
+  // --- TUNING ---
+  static const int SPEED      = 75;
+  static const int TURN_SPEED = 43;
+  static const int STOP_DIST  = 18;
+
+  // Speeds for dodging LEFT
+  static const int DODGE_ARC_SLOW = 10; 
+  static const int DODGE_ARC_FAST = 80;
+
+  // Speeds for sweeping RIGHT
+  static const int RETURN_ARC_SLOW = 48; 
+  static const int RETURN_ARC_FAST = 90; 
+
+  // Arc timing
+  static const int STOP_TIME      = 400;
+  static const int LEFT_ARC_TIME  = 620;
+  static const int RIGHT_ARC_TIME = 3500;
+
+  unsigned long lastObstacleTime = 0;
+
+  unsigned long turnStartTime = 0;
+  bool isTurning = false;
+
+  int obstacleCount = 0; 
+
+  unsigned long lastSonarTime = 0;
+  bool checkRightSonarNext = true;
+
+  enum AvoidState {
+    IDLE,
+    STOP_BEFORE_OBSTACLE,
+    LEFT_ARC_AROUND,
+    RIGHT_ARC_BACK,
+    SEARCH_LINE,
+    RECOVER_LINE,
+    TURN_180
+  };
+
+  AvoidState avoidState = IDLE;
+  unsigned long avoidTimer = 0;
+
+public:
+  Car()
+    : leftMotor (9,  4, 5)
+    , rightMotor(10, 6, 7)
+    , leftIR    (2)
+    , rightIR   (3)
+    , rightSonar(8, 11)
+    , leftSonar (12, 13)
+  {}
+
+  void begin() {
+    leftMotor.begin();
+    rightMotor.begin();
+    leftIR.begin();
+    rightIR.begin();
+    rightSonar.begin();
+    leftSonar.begin();
+    stop();
+  }
+
+  void update() {
+    if (avoidState != IDLE) {
+      handleObstacleAvoidance();
+      return;
+    }
+
+    if (millis() - lastSonarTime > 30) {
+      lastSonarTime = millis();
+
+      long distRight = 0;
+      long distLeft = 0;
+
+      if (checkRightSonarNext) {
+        distRight = rightSonar.getDistance();
+      } else {
+        distLeft = leftSonar.getDistance();
+      }
+
+      checkRightSonarNext = !checkRightSonarNext;
+
+      bool obstacleRight = (distRight > 0 && distRight <= STOP_DIST);
+      bool obstacleLeft  = (distLeft  > 0 && distLeft  <= STOP_DIST);
+
+      // Only count if we haven't seen an obstacle in the last 2 seconds
+      if ((obstacleRight || obstacleLeft) && (millis() - lastObstacleTime > 2000)) {
+        stop();
+        lastObstacleTime = millis();
+
+        obstacleCount++;
+
+        if (obstacleCount >= 2) {
+          avoidState = TURN_180;
+        } else {
+          avoidState = STOP_BEFORE_OBSTACLE;
+        }
+
+        avoidTimer = millis();
+        isTurning = false;
+        return;
+      }
+    }
+
+    followLine(); 
+  }
+
+private:
+  void driveForward() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  void turnLeft() {
+    leftMotor.forward(0);
+    rightMotor.forward(SPEED);
+  }
+
+  void turnRight() {
+    leftMotor.forward(SPEED);
+    rightMotor.forward(0);
+  }
+
+  void spinLeft() {
+    leftMotor.backward(TURN_SPEED);
+    rightMotor.forward(SPEED);
+  }
+
+  void spinRight() {
+    leftMotor.forward(SPEED);
+    rightMotor.backward(TURN_SPEED);
+  }
+
+  void stop() {
+    leftMotor.stop();
+    rightMotor.stop();
+  }
+
+  // LEFT ARC
+  void arcLeft() {
+    leftMotor.forward(DODGE_ARC_SLOW);
+    rightMotor.forward(DODGE_ARC_FAST);
+  }
+
+  // RIGHT ARC
+  void arcRight() {
+    leftMotor.forward(RETURN_ARC_FAST);
+    rightMotor.forward(RETURN_ARC_SLOW);
+  }
+
+  bool blackLineDetected() {
+    return !leftIR.onLine() || !rightIR.onLine();
+  }
+
+  // ─────────────────────────────────────
+  // Normal line following
+  // ─────────────────────────────────────
+  void followLine() {
+    bool L = leftIR.onLine();  // true = WHITE, false = BLACK
+    bool R = rightIR.onLine(); // true = WHITE, false = BLACK
+
+    if (L && R) {
+      driveForward();
+      isTurning = false;
+    }
+
+    else if (!L && R) {
+        spinLeft();
+    }
+
+    else if (L && !R) {
+        spinRight();
+    }
+
+    else {
+      spinLeft();
+      isTurning = false;
+    }
+  }
+
+  // ─────────────────────────────────────
+  // Obstacle avoidance:
+  // stop → left arc → right arc → find line
+  // ─────────────────────────────────────
+  void handleObstacleAvoidance() {
+    unsigned long elapsed = millis() - avoidTimer;
+
+    switch (avoidState) {
+
+      case STOP_BEFORE_OBSTACLE:
+        stop();
+
+        if (elapsed > STOP_TIME) {
+          avoidState = LEFT_ARC_AROUND;
+          avoidTimer = millis();
+        }
+        break;
+
+      case LEFT_ARC_AROUND:
+        {
+          long currentDist = rightSonar.getDistance();
+
+          if (currentDist > 0 && currentDist < 10) { 
+            spinLeft(); 
+          } else {
+            arcLeft();  
+          }
+
+          if (elapsed > LEFT_ARC_TIME) {
+            avoidState = RIGHT_ARC_BACK;
+            avoidTimer = millis();
+          }
+        }
+        break;
+
+      case RIGHT_ARC_BACK:
+        arcRight();
+
+        if (elapsed > 150 && blackLineDetected()) {
+          
+          // 1. CROSS THE LINE: 
+          // Let the motors keep running arcRight() for a fraction of a second 
+          // so the car completely crosses over into the white space on the other side.
+          delay(250); // Increase this if the car doesn't cross the line entirely
+          
+          // 2. SPIN LEFT:
+          spinLeft();
+          
+          // 3. LOOP UNTIL IT HITS THE LINE:
+          // Keep looping as long as NO black line is detected (both sensors see white).
+          // The exact millisecond a sensor touches black, the loop breaks.
+          while (!blackLineDetected()) {
+            // Do nothing, just let it keep spinning left
+          }
+          
+          // 4. STOP AND RECOVER:
+          stop();
+          delay(250); // Brief pause to let the chassis settle before driving forward
+          
+          avoidState = RECOVER_LINE;
+          avoidTimer = millis();
+          break;
+        }
+        
+        // Failsafe in case it completely misses the line on the way back
+        if (elapsed > 5000) {
+          avoidState = SEARCH_LINE;
+          avoidTimer = millis();
+        }
+        break;
+
+      case SEARCH_LINE:
+        arcRight();
+
+        // When line is detected again from ANY sensor, spin left to adjust
+        if (blackLineDetected()) {
+          delay(250); // Increase this if the car doesn't cross the line entirely
+          
+          // 2. SPIN LEFT:
+          spinLeft();
+          
+          // 3. LOOP UNTIL IT HITS THE LINE:
+          // Keep looping as long as NO black line is detected (both sensors see white).
+          // The exact millisecond a sensor touches black, the loop breaks.
+          while (!blackLineDetected()) {
+            // Do nothing, just let it keep spinning left
+          }
+          
+          // 4. STOP AND RECOVER:
+          stop();
+          delay(250); // Brief pause to let the chassis settle before driving forward
+          
+          avoidState = RECOVER_LINE;
+          avoidTimer = millis();
+          break;
+        }
+
+        if (elapsed > 6000) {
+          stop();
+        }
+        break;
+
+        case TURN_180:
+         leftMotor.forward(0);
+       rightMotor.forward(65);
+        obstacleCount = 0;
+
+        // When line is detected again from ANY sensor, spin left to adjust
+        if (elapsed > 1400 && blackLineDetected()) {
+          stop();
+          delay(400);     // original small pause
+
+          avoidState = RECOVER_LINE;
+          avoidTimer = millis();
+          isTurning = false;
+          break;
+        }
+
+        if (elapsed > 8000) {
+          avoidState = SEARCH_LINE;
+          avoidTimer = millis();
+        }
+        break;
+      case RECOVER_LINE:
+        followLine();
+        avoidState = IDLE;
+        break;
+
+      case IDLE:
+        break;
+    }
+  }
+};
+
+// ─────────────────────────────────────
+// Main
+// ─────────────────────────────────────
+Car car;
+
+void setup() {
+  Serial.begin(9600);
+  car.begin();
+
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {}
+}
+
+void loop() {
+  car.update();
+}

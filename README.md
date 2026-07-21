@@ -1,5 +1,4 @@
 # Autonomous Prototype Car (Team D5)
-**Hochschule Hamm-Lippstadt**
 
 ![Project Overview](Prototype/Real%20Life%20Assembly/Reallife_Assembly.jpeg)
 
@@ -22,6 +21,8 @@ This repository is organized into the following directories to reflect the mecha
     Contains the object-oriented C++ software, the finite state machine (FSM) control logic, and a technical README detailing the specific hardware pinouts and class architecture. 
 *   📂 **`3D Design Parts/`** 
     Contains the SolidWorks part files and STEP files for the custom-designed chassis mounts, adjustable IR sensor slider, and component holders.
+*   📂 **`Documentation/`**
+    Contains the final engineering report, the project presentation, and task division documents.
 *   📂 **`Prototype/`**
     Contains media and models from the physical build process, including the Tinkercad circuit simulation, circuit layouts, and real-life assembly photos.
 *   📂 **`SYSML Diagrams/`**
@@ -29,8 +30,8 @@ This repository is organized into the following directories to reflect the mecha
 
 ## Project Team
 **Team Members:**
+*   Mohamed Awis (Team Leader)
 *   Ali Abdelkhalek
-*   Mohamed Awis
 *   Yassin Elhalawany
 
 **Supervisors:** 

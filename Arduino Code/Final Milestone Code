@@ -19,7 +19,6 @@ public:
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
 
-    // Timeout set to 15000us
     long duration = pulseIn(echo, HIGH, 6000);
 
     if (duration == 0) {
@@ -208,13 +207,13 @@ private:
   }
 
   void turnLeft() {
-    leftMotor.forward(0);
+    leftMotor.stop();
     rightMotor.forward(SPEED);
   }
 
   void turnRight() {
     leftMotor.forward(SPEED);
-    rightMotor.forward(0);
+    rightMotor.stop();
   }
 
   void spinLeft() {
@@ -232,13 +231,11 @@ private:
     rightMotor.stop();
   }
 
-  // LEFT ARC
   void arcLeft() {
     leftMotor.forward(DODGE_ARC_SLOW);
     rightMotor.forward(DODGE_ARC_FAST);
   }
 
-  // RIGHT ARC
   void arcRight() {
     leftMotor.forward(RETURN_ARC_FAST);
     rightMotor.forward(RETURN_ARC_SLOW);
@@ -317,7 +314,7 @@ private:
           // 1. CROSS THE LINE: 
           // Let the motors keep running arcRight() for a fraction of a second 
           // so the car completely crosses over into the white space on the other side.
-          delay(250); // Increase this if the car doesn't cross the line entirely
+          delay(250); 
           
           // 2. SPIN LEFT:
           spinLeft();
@@ -326,7 +323,6 @@ private:
           // Keep looping as long as NO black line is detected (both sensors see white).
           // The exact millisecond a sensor touches black, the loop breaks.
           while (!blackLineDetected()) {
-            // Do nothing, just let it keep spinning left
           }
           
           // 4. STOP AND RECOVER:
@@ -350,7 +346,7 @@ private:
 
         // When line is detected again from ANY sensor, spin left to adjust
         if (blackLineDetected()) {
-          delay(250); // Increase this if the car doesn't cross the line entirely
+          delay(250); 
           
           // 2. SPIN LEFT:
           spinLeft();
@@ -359,7 +355,6 @@ private:
           // Keep looping as long as NO black line is detected (both sensors see white).
           // The exact millisecond a sensor touches black, the loop breaks.
           while (!blackLineDetected()) {
-            // Do nothing, just let it keep spinning left
           }
           
           // 4. STOP AND RECOVER:
@@ -377,14 +372,12 @@ private:
         break;
 
         case TURN_180:
-         leftMotor.forward(0);
-       rightMotor.forward(65);
-        obstacleCount = 0;
+         turnLeft();
+         obstacleCount = 0;
 
-        // When line is detected again from ANY sensor, spin left to adjust
         if (elapsed > 1400 && blackLineDetected()) {
           stop();
-          delay(400);     // original small pause
+          delay(400);     
 
           avoidState = RECOVER_LINE;
           avoidTimer = millis();
@@ -392,11 +385,6 @@ private:
           break;
         }
 
-        if (elapsed > 8000) {
-          avoidState = SEARCH_LINE;
-          avoidTimer = millis();
-        }
-        break;
       case RECOVER_LINE:
         followLine();
         avoidState = IDLE;

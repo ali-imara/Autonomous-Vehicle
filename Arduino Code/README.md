@@ -26,12 +26,6 @@ The software is built using an Object-Oriented Programming (OOP) architecture to
 *   **Surface-Based Line Following:** The vehicle continuously reads the white track surface. If either IR sensor detects the black line, the software instantly adjusts the differential motor speeds to re-center the vehicle.
 *   **Smooth Arc Avoidance:** Instead of sharp, blocky turns, the vehicle bypasses obstacles using a calculated left arc, followed by a wider right arc to smoothly sweep back toward the original path.
 *   **Dynamic Collision Prevention:** During an avoidance maneuver, if the lateral distance to an obstacle drops below 10 cm, the system dynamically sharpens the turning radius to prevent side-swiping.
-*   **Bonus Objective (180-Degree Turn):** The system tracks consecutive obstacle detections. If a second obstacle is detected within a two-second cooldown window, the FSM triggers a `TURN_180` state. This bypasses standard avoidance, spins the vehicle completely around, and automatically recovers the line in the opposite direction.
-
-## Setup and Installation
-1. Ensure the main code file is named `D5_Autonomous_Car.ino` and is placed inside a root folder of the exact same name (`D5_Autonomous_Car/`).
-2. Open the `.ino` file in the Arduino IDE.
-3. Select your Arduino board and the appropriate COM port.
-4. Compile and upload to the microcontroller. 
+*   **Bonus Objective (180-Degree Turn):** The system tracks consecutive obstacle detections. If a second obstacle is detected within a two-second cooldown window, the FSM triggers a `TURN_180` state. This bypasses standard avoidance, spins the vehicle completely around, and automatically recovers the line in the opposite direction. 
 
 > **Safety Note:** Place the vehicle on the track prior to powering it on. The `setup()` function features a built-in 2-second delay (`while (millis() - startTime < 2000)`) to allow the user to clear their hands away before the drive motors engage.

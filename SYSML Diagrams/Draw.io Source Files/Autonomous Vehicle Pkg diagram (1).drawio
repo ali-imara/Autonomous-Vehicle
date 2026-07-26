@@ -1,0 +1,101 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="5WWy7aHCFDtICx1YbdfW">
+    <mxGraphModel dx="2267" dy="1961" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-5" parent="1" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;whiteSpace=wrap;" value="Power Package" vertex="1">
+          <mxGeometry height="100" width="150" x="-395" y="-390" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-6" parent="AeBtZwRmvY3Jale_CrRW-5" style="html=1;whiteSpace=wrap;" value="Battery" vertex="1">
+          <mxGeometry height="30" relative="1" width="110" as="geometry">
+            <mxPoint x="20" y="50" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-13" parent="1" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;whiteSpace=wrap;" value="Control Package" vertex="1">
+          <mxGeometry height="190" width="500" x="-80" y="-780" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-14" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="Line Following Module" vertex="1">
+          <mxGeometry height="30" relative="1" width="110" as="geometry">
+            <mxPoint x="20" y="50" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-23" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="Obstacle Response Module" vertex="1">
+          <mxGeometry height="30" width="110" x="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-22" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="&lt;blockquote data-start=&quot;201&quot; data-end=&quot;240&quot;&gt;&lt;p data-start=&quot;203&quot; data-end=&quot;240&quot; class=&quot;PDq2pG_selectionAnchorContainer&quot;&gt;&lt;span data-start=&quot;203&quot; data-end=&quot;240&quot;&gt;Speed and Steering Control Module&lt;/span&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p data-start=&quot;242&quot; data-end=&quot;339&quot;&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="30" width="200" x="290" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pHGY7TebvUTtRd4SaCCE-1" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="First-Obstacle Avoidance Module" vertex="1">
+          <mxGeometry height="30" width="110" x="310" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pHGY7TebvUTtRd4SaCCE-2" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="180° Turn Module" vertex="1">
+          <mxGeometry height="30" width="110" x="20" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pHGY7TebvUTtRd4SaCCE-3" parent="AeBtZwRmvY3Jale_CrRW-13" style="html=1;whiteSpace=wrap;" value="&lt;blockquote data-start=&quot;201&quot; data-end=&quot;240&quot;&gt;&lt;p data-start=&quot;203&quot; data-end=&quot;240&quot; class=&quot;PDq2pG_selectionAnchorContainer&quot;&gt;&lt;span data-start=&quot;203&quot; data-end=&quot;240&quot;&gt;Line Reacquisition Module&lt;/span&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p data-start=&quot;242&quot; data-end=&quot;339&quot;&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="160" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-15" parent="1" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;whiteSpace=wrap;" value="Actuation Package" vertex="1">
+          <mxGeometry height="160" width="280" x="-60" y="-440" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-16" parent="AeBtZwRmvY3Jale_CrRW-15" style="html=1;whiteSpace=wrap;" value="Motor Control Module" vertex="1">
+          <mxGeometry height="30" relative="1" width="110" as="geometry">
+            <mxPoint x="20" y="50" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-24" parent="AeBtZwRmvY3Jale_CrRW-15" style="html=1;whiteSpace=wrap;" value="Right Motor" vertex="1">
+          <mxGeometry height="30" width="110" x="150" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-25" parent="AeBtZwRmvY3Jale_CrRW-15" style="html=1;whiteSpace=wrap;" value="Left Motor" vertex="1">
+          <mxGeometry height="30" width="110" x="20" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-17" parent="1" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;whiteSpace=wrap;" value="Sensors Package" vertex="1">
+          <mxGeometry height="190" width="160" x="-400" y="-755" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-18" parent="AeBtZwRmvY3Jale_CrRW-17" style="html=1;whiteSpace=wrap;" value="IR Sensor Module" vertex="1">
+          <mxGeometry height="30" relative="1" width="110" as="geometry">
+            <mxPoint x="25" y="60" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-21" parent="AeBtZwRmvY3Jale_CrRW-17" style="html=1;whiteSpace=wrap;" value="Ultrasonic Sensor Module" vertex="1">
+          <mxGeometry height="30" width="110" x="25" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-26" edge="1" parent="1" source="AeBtZwRmvY3Jale_CrRW-15" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0.992;entryY=0.773;entryDx=0;entryDy=0;entryPerimeter=0;" target="AeBtZwRmvY3Jale_CrRW-5" value="&amp;lt;&amp;lt;use&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" width="160" x="-0.0008" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="-200" y="-570" as="sourcePoint" />
+            <mxPoint x="-230" y="-390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-28" edge="1" parent="1" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=1.019;entryY=0.618;entryDx=0;entryDy=0;entryPerimeter=0;curved=1;" target="AeBtZwRmvY3Jale_CrRW-17" value="&amp;lt;&amp;lt;use&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" width="160" x="0.0319" y="3" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="-80" y="-690" as="sourcePoint" />
+            <mxPoint x="10" y="-760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-31" edge="1" parent="1" source="AeBtZwRmvY3Jale_CrRW-13" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.621;entryY=0.192;entryDx=0;entryDy=0;entryPerimeter=0;" target="AeBtZwRmvY3Jale_CrRW-15" value="&amp;lt;&amp;lt;use&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-110" y="-790" as="sourcePoint" />
+            <mxPoint x="50" y="-790" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-32" edge="1" parent="1" source="AeBtZwRmvY3Jale_CrRW-13" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;exitX=0;exitY=0;exitDx=0;exitDy=127.5;exitPerimeter=0;entryX=0;entryY=0;entryDx=150;entryDy=47.5;entryPerimeter=0;" target="AeBtZwRmvY3Jale_CrRW-5" value="&amp;lt;&amp;lt;use&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-160" y="-760" as="sourcePoint" />
+            <mxPoint y="-760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-33" edge="1" parent="1" source="AeBtZwRmvY3Jale_CrRW-17" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=130;entryDy=30;entryPerimeter=0;" target="AeBtZwRmvY3Jale_CrRW-5" value="&amp;lt;&amp;lt;use&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="-150" y="-800" as="sourcePoint" />
+            <mxPoint x="10" y="-800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AeBtZwRmvY3Jale_CrRW-34" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;width=180;height=40;" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;pkg [Autonomous Vehicle]&lt;/font&gt;" vertex="1">
+          <mxGeometry height="600" width="910" x="-450" y="-840" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

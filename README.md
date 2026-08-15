@@ -1,4 +1,4 @@
-# Autonomous Vechile
+# Autonomous Vehicle
 
 ![Project Overview](Prototype/Real%20Life%20Assembly/Reallife_Assembly.jpeg)
 
